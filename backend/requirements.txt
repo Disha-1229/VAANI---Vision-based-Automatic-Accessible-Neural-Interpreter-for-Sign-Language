@@ -1,0 +1,6 @@
+flask
+flask-cors
+flask-sock
+ultralytics
+opencv-python
+numpy
