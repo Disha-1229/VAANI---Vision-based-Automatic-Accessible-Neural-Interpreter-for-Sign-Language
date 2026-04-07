@@ -10,7 +10,7 @@ function GeneratePage() {
       generatedLetters.map((letter, index) => ({
         key: `${letter}-${index}`,
         letter,
-        src: getGifUrl(letter)
+        src: getGifUrl(letter),
       })),
     [generatedLetters]
   );
@@ -36,28 +36,61 @@ function GeneratePage() {
     });
   };
 
+  const clearAll = () => {
+    setInputText("");
+    setGeneratedLetters([]);
+  };
+
   return (
     <section className="page">
       <h1 className="page-title">Generate</h1>
       <div className="split-layout">
+
+        {/* ── LEFT: Input ── */}
         <div className="card panel">
           <h2>Text Input</h2>
-          <p>Enter any English text. Only letters A-Z are converted to ISL finger spelling.</p>
+          <p className="status" style={{ marginBottom: "12px" }}>
+            Enter any English text. Only letters A–Z are converted to ISL finger spelling.
+          </p>
           <textarea
             className="text-input"
             placeholder="Type text to generate visual ISL sequence..."
             value={inputText}
             onChange={(event) => setInputText(event.target.value)}
           />
+          {inputText && (
+            <p className="char-count status">
+              {(inputText.match(/[A-Za-z]/g) || []).length} letter
+              {(inputText.match(/[A-Za-z]/g) || []).length !== 1 ? "s" : ""} will be generated
+            </p>
+          )}
           <div className="actions">
-            <button className="primary-btn" onClick={generateFromText}>
+            <button
+              className="primary-btn"
+              onClick={generateFromText}
+              disabled={!inputText.trim()}
+            >
               Generate GIF Sequence
+            </button>
+            <button
+              className="secondary-btn"
+              onClick={clearAll}
+              disabled={!inputText && generatedLetters.length === 0}
+            >
+              Clear
             </button>
           </div>
         </div>
 
+        {/* ── RIGHT: Output GIFs ── */}
         <div className="card panel">
-          <h2>Generated Output</h2>
+          <div className="output-header">
+            <h2>Generated Output</h2>
+            {previews.length > 0 && (
+              <span className="letter-badge">{previews.length} signs</span>
+            )}
+          </div>
+
           <div className="gif-grid">
             {previews.length === 0 ? (
               <p className="muted">Generated GIF output will appear here.</p>
@@ -70,16 +103,18 @@ function GeneratePage() {
               ))
             )}
           </div>
+
           <div className="actions">
             <button
               className="secondary-btn"
               onClick={downloadGifs}
               disabled={previews.length === 0}
             >
-              Download GIF
+              Download GIFs
             </button>
           </div>
         </div>
+
       </div>
     </section>
   );

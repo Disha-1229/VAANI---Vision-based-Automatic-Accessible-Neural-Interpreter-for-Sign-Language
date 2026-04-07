@@ -13,7 +13,7 @@ function LiveDetectionPage() {
   const [prediction, setPrediction] = useState({
     label: null,
     confidence: 0,
-    gif_url: null
+    gif_url: null,
   });
   const [outputText, setOutputText] = useState("");
   const [loading, setLoading] = useState(false);
@@ -106,66 +106,103 @@ function LiveDetectionPage() {
     URL.revokeObjectURL(url);
   };
 
+  const confidencePct = prediction.confidence
+    ? (prediction.confidence * 100).toFixed(2)
+    : 0;
+
   return (
     <section className="page live-page">
+
+      {/* ── LEFT: Webcam ── */}
       <div className="card webcam-card">
         <h2>Live ISL Detection</h2>
-        <Webcam
-          ref={webcamRef}
-          screenshotFormat="image/jpeg"
-          className="webcam"
-          mirrored
-          videoConstraints={{ width: 640, height: 480, facingMode: "user" }}
-        />
+        <div className="camera-frame">
+          {isDetecting && <span className="recording-dot" />}
+          <Webcam
+            ref={webcamRef}
+            screenshotFormat="image/jpeg"
+            className="webcam"
+            mirrored
+            videoConstraints={{ width: 640, height: 480, facingMode: "user" }}
+          />
+        </div>
+        <p className="status cam-status">
+          {isDetecting ? "● Detecting…" : "Camera idle"}
+        </p>
         <div className="actions">
-          <button className="primary-btn" onClick={startDetection}>
+          <button className="primary-btn" onClick={startDetection} disabled={isDetecting}>
             Start Detection
           </button>
-          <button className="secondary-btn" onClick={stopDetection}>
+          <button className="secondary-btn" onClick={stopDetection} disabled={!isDetecting}>
             Stop
           </button>
         </div>
       </div>
 
+      {/* ── RIGHT: Results ── */}
       <div className="card result-card">
         <h2>Prediction Output</h2>
-        {loading && <p className="status">Processing frame...</p>}
-        {error && <p className="error">{error}</p>}
-        <p>
-          <strong>Alphabet:</strong> {prediction.label || "-"}
-        </p>
-        <p>
-          <strong>Confidence:</strong>{" "}
-          {prediction.confidence ? `${(prediction.confidence * 100).toFixed(2)}%` : "-"}
-        </p>
 
+        {error && <p className="error">{error}</p>}
+
+        {/* Prediction chip */}
+        <div className="prediction-chip">
+          <span className="prediction-letter">
+            {prediction.label || "–"}
+          </span>
+          <div className="prediction-meta">
+            <span className="prediction-meta-label">Detected Alphabet</span>
+            <span className="prediction-meta-value">
+              {loading ? "Processing frame…" : prediction.label || "Waiting…"}
+            </span>
+          </div>
+        </div>
+
+        {/* Confidence bar */}
+        <div className="confidence-wrap">
+          <div className="confidence-label">
+            <span>Confidence</span>
+            <span>{confidencePct}%</span>
+          </div>
+          <div className="confidence-track">
+            <div
+              className="confidence-fill"
+              style={{ width: `${confidencePct}%` }}
+            />
+          </div>
+        </div>
+
+        {/* GIF preview */}
         <div className="gif-view">
           {prediction.gif_url ? (
-            <img src={`http://localhost:5000${prediction.gif_url}`} alt="Finger spelling" />
+            <img
+              src={`http://localhost:5000${prediction.gif_url}`}
+              alt={`Finger spelling ${prediction.label}`}
+            />
           ) : (
-            <p>No GIF available</p>
+            <p className="status">No GIF available</p>
           )}
         </div>
 
+        {/* Accumulated text */}
         <div className="output-box">
-          <p>
-            <strong>Accumulated Text:</strong>
-          </p>
-          <div className="text-output">{outputText || "-"}</div>
+          <p className="output-box-label">Accumulated Text</p>
+          <div className="text-output">{outputText || "—"}</div>
         </div>
 
         <div className="actions">
-          <button className="secondary-btn" onClick={clearText}>
-            Clear Text
+          <button className="secondary-btn" onClick={clearText} disabled={!outputText}>
+            Clear
           </button>
-          <button className="secondary-btn" onClick={downloadText}>
-            Download Output
+          <button className="secondary-btn" onClick={downloadText} disabled={!outputText}>
+            Download
           </button>
-          <button className="secondary-btn" onClick={speakText}>
+          <button className="secondary-btn" onClick={speakText} disabled={!outputText}>
             Speak
           </button>
         </div>
       </div>
+
     </section>
   );
 }

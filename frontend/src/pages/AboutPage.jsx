@@ -2,7 +2,8 @@ function AboutPage() {
   return (
     <section className="page">
       <h1 className="page-title">About VAANI</h1>
-      <article className="card panel">
+
+      <article className="card panel about-description">
         <p>
           VAANI (Vision-based Automatic Accessible Neural Interpreter) is an assistive
           communication system that bridges interaction between Indian Sign Language (ISL)
@@ -26,10 +27,22 @@ function AboutPage() {
       <article className="card panel">
         <h2>Team Members</h2>
         <ul className="team-list">
-          <li>Disha Choudhury</li>
-          <li>Anam Saqib</li>
-          <li>Eshani Misra</li>
-          <li>Hrisita Mohapatra</li>
+          <li className="team-item">
+            <span className="team-avatar">D</span>
+            <span>Disha Choudhury</span>
+          </li>
+          <li className="team-item">
+            <span className="team-avatar">A</span>
+            <span>Anam Saqib</span>
+          </li>
+          <li className="team-item">
+            <span className="team-avatar">E</span>
+            <span>Eshani Misra</span>
+          </li>
+          <li className="team-item">
+            <span className="team-avatar">H</span>
+            <span>Hrisita Mohapatra</span>
+          </li>
         </ul>
       </article>
     </section>

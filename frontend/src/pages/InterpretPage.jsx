@@ -6,7 +6,7 @@ const CAPTURE_INTERVAL_MS = 500;
 const CONFIDENCE_THRESHOLD = 0.8;
 const BUFFER_SIZE = 6;
 
-/** Map model class names for “space” to a single buffer token. */
+/** Map model class names for "space" to a single buffer token. */
 function canonicalPredictionLabel(label) {
   if (label == null || label === "") return null;
   const s = String(label).trim();
@@ -170,13 +170,18 @@ function InterpretPage() {
     window.speechSynthesis.speak(utterance);
   };
 
+  const confidencePct = (latestConfidence * 100).toFixed(2);
+
   return (
     <section className="page">
       <h1 className="page-title">Interpret</h1>
       <div className="split-layout">
+
+        {/* ── LEFT: Camera ── */}
         <div className="card panel">
           <h2>Live Camera Input</h2>
           <div className="camera-frame">
+            {isDetecting && <span className="recording-dot" />}
             <Webcam
               ref={webcamRef}
               screenshotFormat="image/jpeg"
@@ -185,40 +190,69 @@ function InterpretPage() {
               videoConstraints={{ width: 640, height: 420, facingMode: "user" }}
             />
           </div>
+          <p className="status cam-status">
+            {isDetecting ? "● Detecting…" : "Camera idle"}
+          </p>
           <div className="actions">
-            <button className="primary-btn" onClick={startDetection}>
+            <button className="primary-btn" onClick={startDetection} disabled={isDetecting}>
               Start
             </button>
-            <button className="secondary-btn" onClick={stopDetection}>
+            <button className="secondary-btn" onClick={stopDetection} disabled={!isDetecting}>
               Stop
             </button>
           </div>
         </div>
 
+        {/* ── RIGHT: Output ── */}
         <div className="card panel">
           <h2>Output</h2>
-          {loading && <p className="status">Interpreting live gesture...</p>}
+
+          {/* Prediction chip */}
+          <div className="prediction-chip">
+            <span className="prediction-letter">{latestLabel}</span>
+            <div className="prediction-meta">
+              <span className="prediction-meta-label">Current Sign</span>
+              <span className="prediction-meta-value">
+                {loading ? "Interpreting…" : latestLabel === "-" ? "—" : latestLabel}
+              </span>
+            </div>
+          </div>
+
+          {/* Confidence bar */}
+          <div className="confidence-wrap">
+            <div className="confidence-label">
+              <span>Confidence</span>
+              <span>{confidencePct}%</span>
+            </div>
+            <div className="confidence-track">
+              <div
+                className="confidence-fill"
+                style={{ width: `${confidencePct}%` }}
+              />
+            </div>
+          </div>
+
+          <p className="status">Minimum confidence threshold: 80% · Buffer: {BUFFER_SIZE} frames</p>
+
           {error && <p className="error">{error}</p>}
-          <p>
-            <strong>Current Prediction:</strong> {latestLabel}
-          </p>
-          <p>
-            <strong>Confidence:</strong> {(latestConfidence * 100).toFixed(2)}%
-          </p>
-          <p className="status">Minimum confidence threshold: 80%</p>
-          <div className="output-area">{outputText || "Detected text will appear here..."}</div>
+
+          <div className="output-area">
+            {outputText || "Detected text will appear here..."}
+          </div>
+
           <div className="actions">
-            <button className="secondary-btn" onClick={copyOutput}>
+            <button className="secondary-btn" onClick={copyOutput} disabled={!outputText}>
               Copy
             </button>
-            <button className="secondary-btn" onClick={speakOutput}>
+            <button className="secondary-btn" onClick={speakOutput} disabled={!outputText}>
               Speak
             </button>
-            <button className="secondary-btn" onClick={clearOutput}>
+            <button className="secondary-btn" onClick={clearOutput} disabled={!outputText}>
               Clear
             </button>
           </div>
         </div>
+
       </div>
     </section>
   );
