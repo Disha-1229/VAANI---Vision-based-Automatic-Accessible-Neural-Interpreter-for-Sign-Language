@@ -10,13 +10,13 @@ VAANI/
     app.py
     requirements.txt
     model/
-      best.pt                # add your trained model here
+      best.pt
     utils/
       __init__.py
       prediction.py
     static/
       gifs/
-        A.gif ... Z.gif      # add finger spelling GIFs
+        A.gif ... Z.gif
   frontend/
     package.json
     index.html
